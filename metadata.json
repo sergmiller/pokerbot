@@ -1,4 +1,1 @@
-{
-	"image": "sberbank/python",
-	"entry_point": "python bot.py"
-}
+{"image":"sberbank/python", "entry_point":"python bots/fish_player.py"}

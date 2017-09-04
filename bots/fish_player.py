@@ -56,4 +56,3 @@ if __name__ == '__main__':
             player.receive_round_result_message(data['winners'], data['hand_info'], data['round_state'])
         else:
             raise RuntimeError('Bad event type "{}"'.format(event_type))
-
