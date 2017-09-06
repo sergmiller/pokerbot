@@ -1,9 +1,19 @@
 import numpy as np
+# import time
 
 from pypokerengine.engine.card import Card
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.engine.hand_evaluator import HandEvaluator
 
+# def timer(f):
+#     def wrapped(*args, **kwargs):
+#         s = time.time()
+#         res = f(*args, **kwargs)
+#         print('worktime: {}'.format(time.time() - s))
+#         return res
+#     return wrapped
+
+# @timer
 def estimate_hole_card_win_rate(
                             nb_simulation,
                             nb_player,
@@ -26,6 +36,7 @@ def estimate_hole_card_win_rate(
                                                     list(next_cards))
                         for next_cards in possible_cards)
     return 1.0 * win_count / nb_simulation
+
 
 def montecarlo_simulation(
                         nb_player,

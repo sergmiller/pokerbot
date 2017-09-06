@@ -1,8 +1,7 @@
 import sys
 import json
 import scipy.stats as sps
-import numpy as np
-import commons
+import bots.commons
 
 from pypokerengine.engine.card import Card
 from pypokerengine.players import BasePokerPlayer
@@ -21,7 +20,7 @@ class HonestPlayer(BasePokerPlayer):
         # self.nb_player = len([[player for player in players if player.is_active()]])
         self.nb_active = len([player for player in round_state['seats'] if player['state'] != 'folded'])
         community_card = round_state['community_card']
-        win_rate = commons.estimate_hole_card_win_rate(
+        win_rate =  commons.estimate_hole_card_win_rate(
                 nb_simulation=self.nb_simulation,
                 nb_player=self.nb_active,
                 hole_card=gen_cards(hole_card),
@@ -53,6 +52,7 @@ class HonestPlayer(BasePokerPlayer):
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
+
 
 
 if __name__ == '__main__':

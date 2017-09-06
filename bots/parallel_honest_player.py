@@ -3,9 +3,9 @@ from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rat
 from pypokerengine.utils.card_utils import _montecarlo_simulation
 from joblib import Parallel, delayed
 import numpy as np
-import commons
+import bots.commons
 
-NB_SIMULATION = 100
+NB_SIMULATION = 300
 
 class ModifiedHonestPlayer(BasePokerPlayer):
 

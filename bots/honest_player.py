@@ -2,7 +2,7 @@ import sys
 import json
 import scipy.stats as sps
 import numpy as np
-import commons
+import bots.commons as commons
 
 from pypokerengine.engine.card import Card
 from pypokerengine.players import BasePokerPlayer
@@ -10,7 +10,7 @@ from pypokerengine.engine.hand_evaluator import HandEvaluator
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
 
-NB_SIMULATION = 200
+NB_SIMULATION = 300
 
 class HonestPlayer(BasePokerPlayer):
 

@@ -1,7 +1,7 @@
 import sys
 import json
 import numpy as np
-import commons
+import bots.commons
 from joblib import Parallel, delayed
 
 from pypokerengine.players import BasePokerPlayer
