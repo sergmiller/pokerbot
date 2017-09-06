@@ -1,16 +1,22 @@
 import sys
 import json
+import commons
 
 from pypokerengine.players import BasePokerPlayer
+from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-
-class MyPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
+class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
 
     #  we define the logic to make an action through this method. (so this method would be the core of your AI)
     def declare_action(self, valid_actions, hole_card, round_state):
         # valid_actions format => [raise_action_info, call_action_info, fold_action_info]
         call_action_info = valid_actions[1]
         action, amount = call_action_info["action"], call_action_info["amount"]
+        self.nb_active = len([player for player in round_state['seats'] if player['state'] != 'folded'])
+        # print('****************************\nMY_INFO {}\n*********************************\n'\
+        # .format(self.nb_active),
+        # file=sys.stderr)
+
         return action, amount   # action returned here is sent to the poker engine
 
     def receive_game_start_message(self, game_info):
@@ -31,7 +37,7 @@ class MyPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BaseP
 
 if __name__ == '__main__':
 
-    player = MyPlayer()
+    player = FishPlayer()
 
     while True:
         line = sys.stdin.readline().rstrip()

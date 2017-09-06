@@ -1,22 +1,46 @@
 import sys
 import json
+import scipy.stats as sps
 import numpy as np
 import commons
-from joblib import Parallel, delayed
 
+from pypokerengine.engine.card import Card
 from pypokerengine.players import BasePokerPlayer
+from pypokerengine.engine.hand_evaluator import HandEvaluator
+from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
 
-class FoldPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
+NB_SIMULATION = 200
 
-    #  we define the logic to make an action through this method. (so this method would be the core of your AI)
+class HonestPlayer(BasePokerPlayer):
+
+    def __init__(self, nb_simulation=NB_SIMULATION):
+        self.nb_simulation = nb_simulation
+
     def declare_action(self, valid_actions, hole_card, round_state):
-        # valid_actions format => [raise_action_info, call_action_info, fold_action_info]
-        action_info = valid_actions[0]
-        return action_info["action"], action_info["amount"]   # action returned here is sent to the poker engine
+        # self.nb_player = len([[player for player in players if player.is_active()]])
+        self.nb_active = len([player for player in round_state['seats'] if player['state'] != 'folded'])
+        community_card = round_state['community_card']
+        win_rate = commons.estimate_hole_card_win_rate(
+                nb_simulation=self.nb_simulation,
+                nb_player=self.nb_active,
+                hole_card=gen_cards(hole_card),
+                community_card=gen_cards(community_card)
+                )
+        if win_rate >= 1.0 / self.nb_active:
+            action = valid_actions[1]  # fetch CALL action info
+        else:
+            action = valid_actions[0]  # fetch FOLD action info
+
+
+        # print('all players: {}, active players: {}'.format(self.nb_player,
+        # len([player for player in players if player.is_active()])), file=sys.stderr)
+
+
+        return action['action'], action['amount']
 
     def receive_game_start_message(self, game_info):
-        pass
+        self.nb_player = game_info['player_num']
 
     def receive_round_start_message(self, round_count, hole_card, seats):
         pass
@@ -33,7 +57,7 @@ class FoldPlayer(BasePokerPlayer):  # Do not forget to make parent class as "Bas
 
 if __name__ == '__main__':
 
-    player = FoldPlayer()
+    player = HonestPlayer()
 
     while True:
         line = sys.stdin.readline().rstrip()
