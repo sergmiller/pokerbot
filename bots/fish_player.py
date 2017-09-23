@@ -1,6 +1,10 @@
 import sys
 import json
-import commons
+import pprint
+try:
+    import commons
+except:
+    from . import commons
 
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
@@ -16,11 +20,30 @@ class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as "Bas
         # print('****************************\nMY_INFO {}\n*********************************\n'\
         # .format(self.nb_active),
         # file=sys.stderr)
+        # print(json.dumps(round_state, ensure_ascii=False))
+        # pprint(json.dumps(round_state, ensure_ascii=False))
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(valid_actions)
+        # print('FISH: hole card - {} converted - {}'.format(hole_card, [(x.suit, x.rank) for x in gen_cards(hole_card)]))
 
         return action, amount   # action returned here is sent to the poker engine
 
     def receive_game_start_message(self, game_info):
-        pass
+        player_num = game_info["player_num"]
+        max_round = game_info["rule"]["max_round"]
+        small_blind_amount = game_info["rule"]["small_blind_amount"]
+        ante_amount = game_info["rule"]["ante"]
+        blind_structure = game_info["rule"]["blind_structure"]
+        # print(game_info)
+        # print('FISH: num - {} max_round - {} sb - {} ante - {} bl_st - {}'.format(
+        #     player_num, max_round, small_blind_amount, ante_amount, blind_structure
+        # ))
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(game_info["seats"])
+        # print(type(game_info))
+        # print(game_info.get('uuid'))
+        # print(self.uuid)
+
 
     def receive_round_start_message(self, round_count, hole_card, seats):
         pass
@@ -51,6 +74,7 @@ if __name__ == '__main__':
             sys.stdout.write('{}\t{}\n'.format(action, amount))
             sys.stdout.flush()
         elif event_type == 'game_start':
+            player.set_uuid(data.get('uuid'))
             player.receive_game_start_message(data)
         elif event_type == 'round_start':
             player.receive_round_start_message(data['round_count'], data['hole_card'], data['seats'])

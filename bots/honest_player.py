@@ -2,7 +2,10 @@ import sys
 import json
 import scipy.stats as sps
 import numpy as np
-import bots.commons as commons
+try:
+    import commons
+except:
+    from . import commons
 
 from pypokerengine.engine.card import Card
 from pypokerengine.players import BasePokerPlayer
@@ -10,7 +13,7 @@ from pypokerengine.engine.hand_evaluator import HandEvaluator
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
 
-NB_SIMULATION = 300
+NB_SIMULATION = 200
 
 class HonestPlayer(BasePokerPlayer):
 
@@ -27,10 +30,21 @@ class HonestPlayer(BasePokerPlayer):
                 hole_card=gen_cards(hole_card),
                 community_card=gen_cards(community_card)
                 )
-        if win_rate >= 1.0 / self.nb_active:
-            action = valid_actions[1]  # fetch CALL action info
+        fold = valid_actions[0]
+        call = valid_actions[1]
+        rise = valid_actions[2]
+        pot = round_state['pot']['main']['amount']
+
+        quot = valid_actions[1]['amount'] / (pot + 1);
+
+        if win_rate >= quot and quot > 0:
+            action = call  # fetch CALL action info
         else:
-            action = valid_actions[0]  # fetch FOLD action info
+            if (sps.bernoulli.rvs(min(win_rate,0.1/self.nb_active)) and rise['amount']['max'] != -1) \
+                or call['amount'] == 0:
+                action = call
+            else:
+                action = fold  # fetch FOLD action info
 
 
         # print('all players: {}, active players: {}'.format(self.nb_player,

@@ -3,7 +3,10 @@ from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rat
 from pypokerengine.utils.card_utils import _montecarlo_simulation
 from joblib import Parallel, delayed
 import numpy as np
-import bots.commons
+try:
+    import commons
+except:
+    from . import commons
 
 NB_SIMULATION = 300
 
