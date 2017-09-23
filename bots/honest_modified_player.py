@@ -1,49 +1,60 @@
 import sys
 import json
-import pprint
+import scipy.stats as sps
+import numpy as np
 try:
     import commons
 except:
     from . import commons
 
+from pypokerengine.engine.card import Card
 from pypokerengine.players import BasePokerPlayer
+from pypokerengine.engine.hand_evaluator import HandEvaluator
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer"
 
-    #  we define the logic to make an action through this method. (so this method would be the core of your AI)
+NB_SIMULATION = 200
+
+class HonestModifiedPlayer(BasePokerPlayer):
+
+    def __init__(self, nb_simulation=NB_SIMULATION):
+        self.nb_simulation = nb_simulation
+
     def declare_action(self, valid_actions, hole_card, round_state):
-        # valid_actions format => [raise_action_info, call_action_info, fold_action_info]
-        call_action_info = valid_actions[1]
-        action, amount = call_action_info["action"], call_action_info["amount"]
+        # self.nb_player = len([[player for player in players if player.is_active()]])
         self.nb_active = len([player for player in round_state['seats'] if player['state'] != 'folded'])
-        # print('****************************\nMY_INFO {}\n*********************************\n'\
-        # .format(self.nb_active),
-        # file=sys.stderr)
-        # print(json.dumps(round_state, ensure_ascii=False))
-        # pprint(json.dumps(round_state, ensure_ascii=False))
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(round_state)
-        # print('FISH: hole card - {} converted - {}'.format(hole_card, [(x.suit, x.rank) for x in gen_cards(hole_card)]))
+        community_card = round_state['community_card']
+        win_rate =  commons.estimate_hole_card_win_rate(
+                nb_simulation=self.nb_simulation,
+                nb_player=self.nb_active,
+                hole_card=gen_cards(hole_card),
+                community_card=gen_cards(community_card)
+                )
+        fold = valid_actions[0]
+        call = valid_actions[1]
+        rise = valid_actions[2]
+        pot = round_state['pot']['main']['amount']
 
-        return action, amount   # action returned here is sent to the poker engine
+        quot = valid_actions[1]['amount'] / (pot + 1);
+
+        if win_rate >= quot and quot > 0:
+            action = call  # fetch CALL action info
+        else:
+            if (sps.bernoulli.rvs(min(win_rate,0.1/self.nb_active)) and rise['amount']['max'] != -1) \
+                or call['amount'] == 0:
+                action = call
+            else:
+                action = fold  # fetch FOLD action info
+
+
+        # print('all players: {}, active players: {}'.format(self.nb_player,
+        # len([player for player in players if player.is_active()])), file=sys.stderr)
+
+
+        return action['action'], action['amount']
 
     def receive_game_start_message(self, game_info):
-        player_num = game_info["player_num"]
-        max_round = game_info["rule"]["max_round"]
-        small_blind_amount = game_info["rule"]["small_blind_amount"]
-        ante_amount = game_info["rule"]["ante"]
-        blind_structure = game_info["rule"]["blind_structure"]
-        # print(game_info)
-        # print('FISH: num - {} max_round - {} sb - {} ante - {} bl_st - {}'.format(
-        #     player_num, max_round, small_blind_amount, ante_amount, blind_structure
-        # ))
-        # pp = pprint.PrettyPrinter(indent=4)
-        # pp.pprint(game_info)
-        # print(type(game_info))
-        # print(game_info.get('uuid'))
-        # print(self.uuid)
-
+        self.nb_player = game_info['player_num']
 
     def receive_round_start_message(self, round_count, hole_card, seats):
         pass
@@ -56,12 +67,12 @@ class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as "Bas
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
-        # print(winners)
+
 
 
 if __name__ == '__main__':
 
-    player = FishPlayer()
+    player = HonestPlayer()
 
     while True:
         line = sys.stdin.readline().rstrip()
@@ -75,7 +86,6 @@ if __name__ == '__main__':
             sys.stdout.write('{}\t{}\n'.format(action, amount))
             sys.stdout.flush()
         elif event_type == 'game_start':
-            player.set_uuid(data.get('uuid'))
             player.receive_game_start_message(data)
         elif event_type == 'round_start':
             player.receive_round_start_message(data['round_count'], data['hole_card'], data['seats'])
