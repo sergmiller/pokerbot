@@ -6,7 +6,7 @@ import json #импортируем библиотеку json
 from pypokerengine.players import BasePokerPlayer #импортируем класс BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate #импортируем
 
-NB_SIMULATION = 1000
+NB_SIMULATION = 200
 
 class BotDenis3Player(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer" Не забывайте сделать родительский класс "BasePokerPlayer"
 

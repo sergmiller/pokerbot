@@ -2,7 +2,7 @@ from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 import scipy.stats as sps
 
-NB_SIMULATION = 1000
+NB_SIMULATION = 200
 
 
 def norm(x):

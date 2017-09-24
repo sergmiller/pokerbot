@@ -81,7 +81,7 @@ SH_preflop_hands = pairs_from_two + premium_connectors_all + suited_connectors_f
 
 ## говнокод Дениса
 
-NB_SIMULATION = 1000
+NB_SIMULATION = 200
 
 class MyPlayer(BasePokerPlayer):
     def declare_action(self, valid_actions, hole_card, round_state):
