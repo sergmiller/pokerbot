@@ -1,7 +1,7 @@
-import sys #импортируем библиотеку sys
-import json #импортируем библиотеку json
+import sys 
+import json 
 
-from pypokerengine.players import BasePokerPlayer #импортируем класс BasePokerPlayer
+from pypokerengine.players import BasePokerPlayer
 
 premium_hands = []
 lnn = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
