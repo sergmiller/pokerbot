@@ -52,9 +52,17 @@ class FishPlayer(BasePokerPlayer):  # Do not forget to make parent class as "Bas
         pass
 
     def receive_game_update_message(self, action, round_state):
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(action)
+        pp.pprint(round_state)
+        pp.pprint(round_state)
         pass
 
     def receive_round_result_message(self, winners, hand_info, round_state):
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint(winners)
+        # pp.pprint(hand_info)
+        # pp.pprint(round_state)
         pass
         # print(winners)
 

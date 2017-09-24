@@ -56,7 +56,7 @@ def montecarlo_simulation(
     return 1 if my_score >= max(opponents_score) else 0
 
 ############################# FEATURES_EXTRACTION ##############################
-FEATURES_LEN = 14 * 9
+FEATURES_LEN = 14 * 9 + 2
 
 from pypokerengine.players import BasePokerPlayer
 from copy import deepcopy
@@ -119,11 +119,7 @@ class PlayerStats(object):
             bid = 0
             for i in range(len(curr_history)-1, 0, -1):
                 if seat['uuid'] == curr_history[i]['uuid']:
-                    try:
-                        bid = curr_history[i]['amount'] if 'amount' in curr_history[i] else 0
-                    except:
-                        print(curr_history[i])
-                        print(curr_history)
+                    bid = curr_history[i]['amount'] if 'amount' in curr_history[i] else 0
             seat_stats[name]['confidence'] = bid / float(seat['stack'] + bid) if bid > 0 else 0
 
         # calculate frequencies for fold/call/raise in each stage of the game
@@ -154,6 +150,7 @@ class PlayerStats(object):
                 for param2 in ['fold','call','raise']:
                     fine_params.append(players_stats[round_states['seats'][i]['name']][param1][param2])
             #fine_params.extend(players_params[i*params_per_name:(i+1)*params_per_name])
+        # print(len(fine_params), len(players_params), n_players)
         assert len(fine_params) == len(players_params)
         return fine_params
 
@@ -172,14 +169,15 @@ from keras.models import Sequential
 from keras.models import model_from_json
 from keras.layers import Dense, Activation, Dropout, BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
-from keras.activations import sigmoid
+from keras.activations import sigmoid, linear
 from keras.constraints import maxnorm
 from keras.optimizers import SGD
-from keras.losses import binary_crossentropy
+from keras.losses import binary_crossentropy, mse
 from keras.utils import np_utils
 from keras.utils.np_utils import to_categorical
-from sklearn.metrics import precision_score, mean_squared_error
+from sklearn.metrics import precision_score
 from keras.callbacks import LearningRateScheduler
+from keras import regularizers
 
 
 def model1(input_shape=FEATURES_LEN):
@@ -204,12 +202,13 @@ def model1(input_shape=FEATURES_LEN):
                     kernel_regularizer=regularizers.l2(0.01),
                     activation=linear,
                    ))
+
     sgd = SGD(lr=1e-2,
               momentum=0.9,
               decay=0.5,
               nesterov=True
              )
-    model.compile(loss=mean_squared_error,
+    model.compile(loss=mse,
                   optimizer=sgd,
                  )
     return model

@@ -6,7 +6,7 @@ import json #импортируем библиотеку json
 from pypokerengine.players import BasePokerPlayer #импортируем класс BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate #импортируем
 
-NB_SIMULATION = 200
+NB_SIMULATION = 1000
 
 class BotDenisPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer" Не забывайте сделать родительский класс "BasePokerPlayer"
 
@@ -113,6 +113,14 @@ class BotDenisPlayer(BasePokerPlayer):  # Do not forget to make parent class as 
                 action = "fold"
                 amount = fold_action_info["amount"]
 
+        if action == 'raise':
+            amount = max(raise_action_info["amount"]["min"],
+            min(raise_action_info["amount"]["max"], amount))
+
+        if action == 'raise' and amount == -1:
+            action = 'call'
+            amount = call_action_info['amount']
+
         return action, amount # action returned here is sent to the poker engine действие, возвращаемое сюда, отправляется в покерный движок
 
     def receive_game_start_message(self, game_info):
@@ -136,7 +144,7 @@ class BotDenisPlayer(BasePokerPlayer):  # Do not forget to make parent class as 
 
 if __name__ == '__main__':
 
-    player = MyPlayer()
+    player = BotDenisPlayer()
 
     while True:
         line = sys.stdin.readline().rstrip()
@@ -150,6 +158,7 @@ if __name__ == '__main__':
             sys.stdout.write('{}\t{}\n'.format(action, amount))
             sys.stdout.flush()
         elif event_type == 'game_start':
+            player.set_uuid(data.get('uuid'))
             player.receive_game_start_message(data)
         elif event_type == 'round_start':
             player.receive_round_start_message(data['round_count'], data['hole_card'], data['seats'])

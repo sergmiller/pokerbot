@@ -6,7 +6,7 @@ import json #импортируем библиотеку json
 from pypokerengine.players import BasePokerPlayer #импортируем класс BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate #импортируем
 
-NB_SIMULATION = 200
+NB_SIMULATION = 1000
 
 class BotDenis3Player(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer" Не забывайте сделать родительский класс "BasePokerPlayer"
 
@@ -52,7 +52,7 @@ class BotDenis3Player(BasePokerPlayer):  # Do not forget to make parent class as
                 if free_flop:
                     action = "call"
                     amount = call_action_info["amount"]
-        
+
         if street == "flop":
             if win_rate >= percent:
                 action = "raise"
@@ -69,7 +69,7 @@ class BotDenis3Player(BasePokerPlayer):  # Do not forget to make parent class as
             else:
                 action = "fold"
                 amount = fold_action_info["amount"]
-        
+
         if street == "turn":
             if win_rate >= percent:
                 action = "raise"
