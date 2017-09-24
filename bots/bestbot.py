@@ -78,8 +78,6 @@ premium_connectors_all = premium_connectors_AQ + premium_connectors_AK
 FR_preflop_hands = pairs_from_eight + premium_connectors_all
 SH_preflop_hands = pairs_from_two + premium_connectors_all + suited_connectors_from_JT
 
-## говнокод Дениса
-
 NB_SIMULATION = 200
 
 
