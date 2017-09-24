@@ -1,18 +1,17 @@
 # -*- coding: UTF-8 -*-
 
-import sys #импортируем библиотеку sys
-import json #импортируем библиотеку json
+import sys
+import json
 
-from pypokerengine.players import BasePokerPlayer #импортируем класс BasePokerPlayer
-from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate #импортируем
+from pypokerengine.players import BasePokerPlayer
+from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
 NB_SIMULATION = 200
 
 
 
-class MyPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BasePokerPlayer" Не забывайте сделать родительский класс "BasePokerPlayer"
+class MyPlayer(BasePokerPlayer):
 
-    #  we define the logic to make an action through this method (so this method would be the core of your AI) мы определяем логику для совершения действия с помощью этого метода (так что этот метод будет ядром вашего ИИ)
 
     def declare_action(self, valid_actions, hole_card, round_state):
 
@@ -148,7 +147,7 @@ class MyPlayer(BasePokerPlayer):  # Do not forget to make parent class as "BaseP
         #print 'nb_player'
         #print self.nb_active
 
-        return action, amount # action returned here is sent to the poker engine действие, возвращаемое сюда, отправляется в покерный движок
+        return action, amount
 
     def receive_game_start_message(self, game_info):
         for (i, seat) in enumerate(game_info["seats"]):

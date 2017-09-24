@@ -4,7 +4,6 @@ import json
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-## говнокод Дениса
 
 FR_preflop_hands, SH_preflop_hands, HU_preflop_hands = [], [], [],
 cards_power = ['2','3','4','5','6','7','8','9','T','J','Q','K','A']
@@ -79,7 +78,6 @@ premium_connectors_all = premium_connectors_AQ + premium_connectors_AK
 FR_preflop_hands = pairs_from_eight + premium_connectors_all
 SH_preflop_hands = pairs_from_two + premium_connectors_all + suited_connectors_from_JT
 
-## говнокод Дениса
 
 NB_SIMULATION = 200
 

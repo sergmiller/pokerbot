@@ -38,7 +38,6 @@ from collections import deque
 
 from keras.models import load_model
 
-# говнокод Дениса
 
 FR_preflop_hands, SH_preflop_hands, HU_preflop_hands = [], [], [],
 cards_power = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']

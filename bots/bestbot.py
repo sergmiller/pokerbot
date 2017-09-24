@@ -4,7 +4,6 @@ import json
 from pypokerengine.players import BasePokerPlayer
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
-## говнокод Дениса
 
 FR_preflop_hands, SH_preflop_hands, HU_preflop_hands = [], [], [],
 cards_power = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
