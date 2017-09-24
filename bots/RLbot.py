@@ -183,10 +183,11 @@ class RLPokerPlayer(BasePokerPlayer):
                                     self.ante_amount)
         # self.emulator.set_blind_structure(blind_structure)
 
-        # Register algorithm of each player which used in the simulation.
-        for i in np.arange(self.player_num):
-            self.emulator.register_player(uuid=game_info["seats"][i]["uuid"],
-            player=self.players[i] if self.players[i] is not None else self)
+        if self.study_mode:
+            # Register algorithm of each player which used in the simulation.
+            for i in np.arange(self.player_num):
+                self.emulator.register_player(uuid=game_info["seats"][i]["uuid"],
+                player=self.players[i] if self.players[i] is not None else self)
 
 
     def receive_round_start_message(self, round_count, hole_card, seats):

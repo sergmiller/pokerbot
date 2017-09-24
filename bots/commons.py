@@ -171,8 +171,6 @@ class PlayerStats(object):
                     community_card=gen_cards(community_card)
                 )
         global_params.append(win_rate)
-        for i in range(self_seat_id - 1, -1, -1):
-            ind = (i + n_players) % n_players
 
         player_stack = round_states['seats'][self_seat_id]['stack']
         gain_stack_relation = player_stack / float(round_states['pot']['main']['amount']) if player_stack > 0 else 10.
@@ -180,15 +178,16 @@ class PlayerStats(object):
         global_params.append(1. / n_active_players)
         global_params.append(round_states['round_count'] / 50.) # stage of the game
         global_params.append(len(round_states['action_histories'])) # stage of the round
-        global_params.append(len(round_states['action_histories'][round_states['street']]) /\
-                             float(n_players)) # number of actions in the street
+        nb_street_actions = len(round_states['action_histories'][round_states['street']])
+        if round_states['street'] == 'preflop':
+            nb_street_actions -= 2
+        global_params.append(nb_street_actions / float(n_players)) # number of actions in the street
 
         fine_params.extend(global_params)
         return fine_params
 
     def get_round_id(self, round_states):
         return round_states['round_count']
-
 
 ############################ KERAS MODEL #######################################
 
