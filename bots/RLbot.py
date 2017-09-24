@@ -16,7 +16,7 @@ from pypokerengine.players import BasePokerPlayer
 from pypokerengine.api.emulator import Emulator
 from pypokerengine.engine.poker_constants import PokerConstants
 from pypokerengine.engine.action_checker import ActionChecker
-from pypokerengine.utils.game_state_utils import restore_game_state
+from pypokerengine.utils.game_state_utils import restore_game_state, attach_hole_card_from_deck
 from pypokerengine.utils.card_utils import gen_cards, estimate_hole_card_win_rate
 
 from copy import deepcopy
@@ -112,7 +112,7 @@ class RLPokerPlayer(BasePokerPlayer):
 
 
     def find_best_strat(self, valid_actions, cur_state_vec, my_stack):
-        best_move, best_reward = None, -np.inf
+        best_move, best_reward = None, -1500*9
         good_moves = self.good_moves(valid_actions, my_stack)
 
         if sps.bernoulli.rvs(p=self.epsilonRandom):
@@ -167,6 +167,8 @@ class RLPokerPlayer(BasePokerPlayer):
 
     def receive_game_start_message(self, game_info):
         # self.my_name = game_info['seats'][self.my_seat]['name']
+        if self.study_mode:
+            self.uuid = game_info["seats"][self.my_seat]['uuid']
         self.stats.init_player_names(game_info)
         self.player_num = game_info["player_num"]
         self.max_round = game_info["rule"]["max_round"]
@@ -229,28 +231,36 @@ class RLPokerPlayer(BasePokerPlayer):
         game_state = restore_game_state(next_state)
         possible_actions = self.emulator.generate_possible_actions(game_state)
         good_actions = self.good_moves(possible_actions, next_state['seats'][self.my_seat]['stack'])
-        best_reward = -np.inf
+        best_reward = -1500*9
         for action in good_actions:
             # print(action)
-            next_next_game_state = self.emulator.apply_action(game_state, action['action'], action['amount'])
             try:
+                next_next_game_state = self.emulator.apply_action(game_state, action['action'], action['amount'])
                 next_next_state = next_next_game_state[1][-1]['round_state']
-            except:
-                next_next_state = next_next_game_state['action_histories']
+                # next_next_state = next_next_game_state['action_histories']
             # pp = pprint.PrettyPrinter(indent=4)
             # pp.pprint(next_next_state)
-            next_next_game_state = restore_game_state(next_next_state)
-            next_next_actions = self.emulator.generate_possible_actions(next_next_game_state)
-            best_reward = max(best_reward, self.find_best_strat(next_next_actions,
-                                                                next_state_vec,
-                                                                next_next_state['seats'][self.my_seat]['stack'],
-                                                                )[1])
+                if next_next_state['street'] in  ['showdown','finished',4,5]:
+                    best_reward = max(best_reward, next_next_state['seats'][self.my_seat]['stack'] - self.start_round_stack)
+                else:
+                    next_next_game_state = restore_game_state(next_next_state)
+                    hole_card = attach_hole_card_from_deck(next_next_game_state, self.uuid)
+                    next_state_stats.update(hole_card, next_next_state)
+                    next_next_state_vec = self.stats.calc_fine_params(hole_card, next_next_state)
+
+                    next_next_actions = self.emulator.generate_possible_actions(next_next_game_state)
+                    best_reward = max(best_reward, self.find_best_strat(next_next_actions,
+                                                                        next_next_state_vec,
+                                                                        next_next_state['seats'][self.my_seat]['stack'],
+                                                                        )[1])
+            except:
+                continue
         return best_reward
 
 
     def learn_with_states(self, state,
                             next_state):
-        if next_state['states_original']['street'] in ['showdown', 'finished']:
+        if next_state['states_original']['street'] in ['showdown','finished',4,5]:
             reward = next_state['rewards']
         else:
             reward = next_state['rewards'] +\
