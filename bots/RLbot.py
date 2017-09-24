@@ -56,8 +56,8 @@ class RLPokerPlayer(BasePokerPlayer):
                     decayRandom=0.5,
                     players=[RandomPlayer()] * 8 + [None],
                     max_history_len=1000,
+                    new_model_file=None,
                     ):
-        super().__init__()
         self.stats = commons.PlayerStats()
         self.new_model_file = new_model_file
         self.gammaReward = gammaReward
